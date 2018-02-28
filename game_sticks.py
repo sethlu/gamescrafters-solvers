@@ -1,60 +1,115 @@
 
+# coding=utf-8
+
 from game import *
 from itertools import product, permutations
 
-class Sticks(ReversibleGame):
 
-    @staticmethod
-    def final_states(): # Some may not be possible to reach
-        return [state for state in product(product([1, 2, 3, 4, 5], repeat=2), repeat=2)
-            if state[0][0] == 5 or state[0][1] == 5 or state[1][0] == 5 or state[1][1] == 5]
+def number_alive(n):
+    return n > 0 and n < 5
+
+
+class Sticks(Game):
+
+    def __init__(self,
+        opt_pass=False,
+        opt_wrap=False,
+        opt_split_odd=False,
+        opt_split_even=False):
+        self.opt_pass = opt_pass
+        self.opt_wrap = opt_wrap
+        self.opt_split_odd = opt_split_odd
+        self.opt_split_even = opt_split_even
 
     @staticmethod
     def primitive(state):
-        if state[0][0] == 5 and state[0][1] == 5:
+        if not number_alive(state[0][0]) and not number_alive(state[0][1]):
             return Game.LOSE
-        if state[1][0] == 5 and state[1][1] == 5:
+        if not number_alive(state[0][0]) and not number_alive(state[0][1]):
             return Game.WIN
         return Game.UNDETERMINED
 
     @staticmethod
-    def reversed_transitions(state):
-        rts = []
-        if state[0][0] - state[1][0] > 0:
-            rts.append('ll')
-        if state[0][0] - state[1][1] > 0:
-            rts.append('rl')
-        if state[0][1] - state[1][0] > 0:
-            rts.append('lr')
-        if state[0][1] - state[1][1] > 0:
-            rts.append('rr')
-        if state[1][0] == state[1][1] == 2:
-            rts.append('04-22')
-            rts.append('40-22')
-        return rts
+    def initial_state():
+        return ((1, 1), (1, 1))
 
-    @staticmethod
-    def reverse(state, reversed_transition):
-        if reversed_transition == 'll':
-            return ((state[1][0], state[1][1]),
-                    (state[0][0] - state[1][0], state[0][1]))
-        elif reversed_transition == 'lr':
-            return ((state[1][0], state[1][1]),
-                    (state[0][0], state[0][1] - state[1][0]))
-        elif reversed_transition == 'rl':
-            return ((state[1][0], state[1][1]),
-                    (state[0][0] - state[1][1], state[0][1]))
-        elif reversed_transition == 'rr':
-            return ((state[1][0], state[1][1]),
-                    (state[0][0], state[0][1] - state[1][1]))
-        elif reversed_transition == '04-22':
-            return ((0, 4),
+    def transitions(self, state):
+        ts = []
+        if number_alive(state[0][0]):
+            if number_alive(state[1][0]):
+                ts.append('ll')
+            if number_alive(state[1][1]):
+                ts.append('lr')
+        if number_alive(state[0][1]):
+            if number_alive(state[1][0]):
+                ts.append('rl')
+            if number_alive(state[1][1]):
+                ts.append('rr')
+        if self.opt_pass:
+            ts.append('pass')
+        if number_alive(state[0][0]) and not number_alive(state[0][1]):
+            # Split left
+            if state[0][0] % 2: # Odd
+                if self.opt_split_odd:
+                    ts.append('split-l')
+                    ts.append('split-l\'') # Complement
+            elif self.opt_split_even:
+                ts.append('split-l')
+        if not number_alive(state[0][0]) and number_alive(state[0][1]):
+            # Split right
+            if state[0][0] % 2: # Odd
+                if self.opt_split_odd:
+                    ts.append('split-r')
+                    ts.append('split-r\'') # Complement
+            elif self.opt_split_even:
+                ts.append('split-r')
+        return ts
+
+    def next(self, state, transition):
+        if transition == 'll':
+            if self.opt_wrap:
+                return (((state[1][0] + state[0][0]) % 5, state[1][1]),
+                        (state[0][0], state[0][1]))
+            return ((state[1][0] + state[0][0], state[1][1]),
                     (state[0][0], state[0][1]))
-        elif reversed_transition == '40-22':
-            return ((4, 0),
+        elif transition == 'lr':
+            if self.opt_wrap:
+                return ((state[1][0], (state[1][1] + state[0][0]) % 5),
+                        (state[0][0], state[0][1]))
+            return ((state[1][0], state[1][1] + state[0][0]),
                     (state[0][0], state[0][1]))
+        elif transition == 'rl':
+            if self.opt_wrap:
+                return (((state[1][0] + state[0][1]) % 5, state[1][1]),
+                        (state[0][0], state[0][1]))
+            return ((state[1][0] + state[1][0], state[1][1]),
+                    (state[0][0], state[0][1]))
+        elif transition == 'rr':
+            if self.opt_wrap:
+                return ((state[1][0], (state[1][1] + state[0][1]) % 5),
+                        (state[0][0], state[0][1]))
+            return ((state[1][0], state[1][1] + state[1][0]),
+                    (state[0][0], state[0][1]))
+        elif transition == 'pass':
+            return ((state[1][0], state[1][1]),
+                    (state[0][1], state[0][0]))
+        elif transition == 'split-l':
+            return ((state[1][0], state[1][1]),
+                    (state[0][0] / 2, state[0][0] - state[0][0] / 2))
+        elif transition == 'split-l\'':
+            return ((state[1][0], state[1][1]),
+                    (state[0][0] - state[0][0] / 2, state[0][0] / 2))
+        elif transition == 'split-r':
+            return ((state[1][0], state[1][1]),
+                    (state[0][1] / 2, state[0][1] - state[0][1] / 2))
+        elif transition == 'split-r\'':
+            return ((state[1][0], state[1][1]),
+                    (state[0][1] - state[0][1] / 2, state[0][1] / 2))
 
     @staticmethod
     def describe(state):
-        return 'me %d %d & other %d %d' % \
-            (state[0][0], state[0][1], state[1][0], state[1][1])
+        return u'[ ↑ %s %s ↑ | ↓ %s %s ↓ ]' % (
+            state[0][0] if number_alive(state[0][0]) else 'x',
+            state[0][1] if number_alive(state[0][1]) else 'x',
+            state[1][0] if number_alive(state[1][0]) else 'x',
+            state[1][1] if number_alive(state[1][1]) else 'x')
