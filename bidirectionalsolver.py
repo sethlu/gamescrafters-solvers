@@ -71,5 +71,5 @@ game = Sticks(
 for _ in solve(game).items():
     print('%s\t%-12s\t%s' % (
         game.describe(_[0]), _[1],
-        '  '.join(t + u' → ' + game.describe(game.next(_[0], t))
+        '  '.join(unicode(t) + u' → ' + unicode(game.describe(game.next(_[0], t)))
             for t in game.transitions(_[0]))))
