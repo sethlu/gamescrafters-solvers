@@ -68,8 +68,8 @@ game = Sticks(
     opt_split_odd=True,
     opt_split_even=True)
 
-for _ in solve(game).items():
-    print('%s\t%-12s\t%s' % (
-        game.describe(_[0]), _[1],
+for i, _ in enumerate(solve(game).items()):
+    print('%04d\t%s\t%-12s\t%s' % (
+        i, game.describe(_[0]), _[1],
         '  '.join(unicode(t) + u' → ' + unicode(game.describe(game.next(_[0], t)))
             for t in game.transitions(_[0]))))
