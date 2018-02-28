@@ -13,7 +13,7 @@ class Sticks(Game):
 
     def __init__(self,
         opt_pass=False,
-        opt_wrap=False,
+        opt_wrap=True,
         opt_split_odd=False,
         opt_split_even=False):
         self.opt_pass = opt_pass
