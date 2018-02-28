@@ -25,6 +25,8 @@ def solve(game):
         if parent:
             state_props[state]['parents'].add(parent)
         frontier.add(state)
+        if state_props[state]['val'] is not Game.UNDETERMINED:
+            return
         for t in game.transitions(state):
             next_state = game.next(state, t)
 
