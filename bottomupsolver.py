@@ -57,12 +57,13 @@ def solve(game):
     return {_[0]: _[1]['val'] for _ in state_props.items()}
 
 # Demo
+if __name__ == '__main__':
 
-# from game_tens import Tens
-# game = Tens
+    # from game_tens import Tens
+    # game = Tens
 
-from game_sticks import Sticks
-game = Sticks()
+    from game_sticks import Sticks
+    game = Sticks()
 
-for _ in solve(game).items():
-    print('%s\t%s' % (game.describe(_[0]), _[1]))
+    for _ in solve(game).items():
+        print('%s\t%s' % (game.describe(_[0]), _[1]))

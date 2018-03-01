@@ -59,19 +59,20 @@ def solve(game):
     return {_[0]: _[1]['val'] for _ in state_props.items()}
 
 # Demo
+if __name__ == '__main__':
 
-# from game_tens import Tens
-# game = Tens
+    # from game_tens import Tens
+    # game = Tens
 
-from game_sticks import Sticks
-game = Sticks(
-    opt_pass=True,
-    opt_wrap=True,
-    opt_split_odd=True,
-    opt_split_even=True)
+    from game_sticks import Sticks
+    game = Sticks(
+        opt_pass=False,
+        opt_wrap=True,
+        opt_split_odd=False,
+        opt_split_even=False)
 
-for i, _ in enumerate(solve(game).items()):
-    print('%04d\t%s\t%-12s\t%s' % (
-        i, game.describe(_[0]), _[1],
-        '  '.join(unicode(t) + u' → ' + unicode(game.describe(game.next(_[0], t)))
-            for t in game.transitions(_[0]))))
+    for i, _ in enumerate(solve(game).items()):
+        print('%04d\t%s\t%-12s\t%s' % (
+            i, game.describe(_[0]), _[1],
+            '  '.join(unicode(t) + u' → ' + unicode(game.describe(game.next(_[0], t)))
+                for t in game.transitions(_[0]))))

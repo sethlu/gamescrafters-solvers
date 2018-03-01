@@ -28,9 +28,10 @@ def solve(game):
     return cache
 
 # Demo
+if __name__ == '__main__':
 
-from game_tens import Tens
-game = Tens()
+    from game_tens import Tens
+    game = Tens()
 
-for _ in solve(game).items():
-    print('%s\t%s' % (game.describe(_[0]), _[1]))
+    for _ in solve(game).items():
+        print('%s\t%s' % (game.describe(_[0]), _[1]))
