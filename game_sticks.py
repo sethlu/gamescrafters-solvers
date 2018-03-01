@@ -50,7 +50,7 @@ class Sticks(Game):
         if number_alive(state[0][0]) and not number_alive(state[0][1]):
             # Split left
             if state[0][0] % 2: # Odd
-                if self.opt_split_odd:
+                if self.opt_split_odd and state[0][0] > 1:
                     ts.append('split-l')
                     ts.append('split-l\'') # Complement
             elif self.opt_split_even:
@@ -58,7 +58,7 @@ class Sticks(Game):
         if not number_alive(state[0][0]) and number_alive(state[0][1]):
             # Split right
             if state[0][0] % 2: # Odd
-                if self.opt_split_odd:
+                if self.opt_split_odd and state[0][1] > 1:
                     ts.append('split-r')
                     ts.append('split-r\'') # Complement
             elif self.opt_split_even:
@@ -70,25 +70,25 @@ class Sticks(Game):
             if self.opt_wrap:
                 return (((state[1][0] + state[0][0]) % 5, state[1][1]),
                         (state[0][0], state[0][1]))
-            return ((state[1][0] + state[0][0], state[1][1]),
+            return ((state[1][0] + state[0][0] if state[1][0] + state[0][0] < 5 else 0, state[1][1]),
                     (state[0][0], state[0][1]))
         elif transition == 'lr':
             if self.opt_wrap:
                 return ((state[1][0], (state[1][1] + state[0][0]) % 5),
                         (state[0][0], state[0][1]))
-            return ((state[1][0], state[1][1] + state[0][0]),
+            return ((state[1][0], state[1][1] + state[0][0] if state[1][1] + state[0][0] < 5 else 0),
                     (state[0][0], state[0][1]))
         elif transition == 'rl':
             if self.opt_wrap:
                 return (((state[1][0] + state[0][1]) % 5, state[1][1]),
                         (state[0][0], state[0][1]))
-            return ((state[1][0] + state[1][0], state[1][1]),
+            return ((state[1][0] + state[1][0] if state[1][0] + state[1][0] < 5 else 0, state[1][1]),
                     (state[0][0], state[0][1]))
         elif transition == 'rr':
             if self.opt_wrap:
                 return ((state[1][0], (state[1][1] + state[0][1]) % 5),
                         (state[0][0], state[0][1]))
-            return ((state[1][0], state[1][1] + state[1][0]),
+            return ((state[1][0], state[1][1] + state[1][0] if state[1][1] + state[1][0] < 5 else 0),
                     (state[0][0], state[0][1]))
         elif transition == 'pass':
             return ((state[1][0], state[1][1]),
